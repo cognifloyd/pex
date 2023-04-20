@@ -16,7 +16,7 @@ concurrency:
 jobs:
   org-check:
     name: Check GitHub Organization
-    if: github.repository_owner == 'pantsbuild'
+    if: github.repository_owner == 'cognifloyd'
     runs-on: ubuntu-20.04
     steps:
       - name: Noop
@@ -56,6 +56,9 @@ jobs:
             pip-version: 20
           - os: ubuntu-20.04
             python-version: [ 3, 5 ]
+            pip-version: 20
+          - os: windows-2022
+            python-version: [ 3, 11 ]
             pip-version: 20
           - os: macos-11
             python-version: [ 3, 11 ]
@@ -159,6 +162,9 @@ jobs:
           - os: ubuntu-20.04
             python-version: [ 3, 7 ]
             pip-version: 23_1
+          #- os: windows-2022
+          #  python-version: [ 3, 11 ]
+          #  pip-version: 20
           - os: macos-11
             python-version: [ 3, 11 ]
             pip-version: 20

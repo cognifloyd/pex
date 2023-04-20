@@ -4,7 +4,6 @@
 from __future__ import absolute_import
 
 import errno
-import fcntl
 import os
 import threading
 from contextlib import contextmanager
@@ -12,8 +11,14 @@ from uuid import uuid4
 
 from pex import pex_warnings
 from pex.common import safe_mkdir, safe_rmtree
+from pex.compatibility import WINDOWS
 from pex.enum import Enum
 from pex.typing import TYPE_CHECKING, cast
+
+if WINDOWS:
+￼    import msvcrt
+￼else:
+￼    import fcntl
 
 if TYPE_CHECKING:
     from typing import Callable, Dict, Iterator, Optional
@@ -158,19 +163,39 @@ class _FileLock(object):
         # operations only work on files opened for at least write.
         lock_fd = os.open(self._path, os.O_CREAT | os.O_WRONLY)
 
-        lock_api = cast(
-            "Callable[[int, int], None]",
-            fcntl.flock if _is_bsd_lock(self._style) else fcntl.lockf,
-        )
+        if WINDOWS:
+            while True:
+                # Force the non-blocking lock to be blocking. LK_LOCK is msvcrt's implementation of
+                # a blocking lock, but it only tries 10 times, once per second before rasing an
+                # OSError.
+                try:
+                    msvcrt.locking(lock_fd, msvcrt.LK_LOCK, 1)
+                    break
+                except OSError as ex:
+                    # Deadlock error is raised after failing to lock the file
+                    if ex.errno != errno.EDEADLOCK:
+                        raise
+                    safe_sleep(1)
 
-        # N.B.: Since lockf and flock operate on an open file descriptor and these are
-        # guaranteed to be closed by the operating system when the owning process exits,
-        # this lock is immune to staleness.
-        lock_api(lock_fd, fcntl.LOCK_EX)  # A blocking write lock.
+            def unlock():
+                msvcrt.locking(lock_fd, msvcrt.LK_UNLCK, 1)
+        else:
+            lock_api = cast(
+                "Callable[[int, int], None]",
+                fcntl.flock if _is_bsd_lock(self._style) else fcntl.lockf,
+            )
+
+            # N.B.: Since lockf and flock operate on an open file descriptor and these are
+            # guaranteed to be closed by the operating system when the owning process exits,
+            # this lock is immune to staleness.
+            lock_api(lock_fd, fcntl.LOCK_EX)  # A blocking write lock.
+
+            def unlock():
+                lock_api(lock_fd, fcntl.LOCK_UN)
 
         def release():
             try:
-                lock_api(lock_fd, fcntl.LOCK_UN)
+                unlock()
             finally:
                 os.close(lock_fd)
             self._in_process_lock.release()

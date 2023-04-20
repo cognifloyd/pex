@@ -16,9 +16,9 @@ from pex.enum import Enum
 from pex.typing import TYPE_CHECKING, cast
 
 if WINDOWS:
-￼    import msvcrt
-￼else:
-￼    import fcntl
+    import msvcrt
+else:
+    import fcntl
 
 if TYPE_CHECKING:
     from typing import Callable, Dict, Iterator, Optional

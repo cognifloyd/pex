@@ -10,7 +10,7 @@ from contextlib import contextmanager
 from uuid import uuid4
 
 from pex import pex_warnings
-from pex.common import safe_mkdir, safe_rmtree
+from pex.common import safe_mkdir, safe_rmtree, safe_sleep
 from pex.compatibility import WINDOWS
 from pex.enum import Enum
 from pex.typing import TYPE_CHECKING, cast
@@ -169,7 +169,7 @@ class _FileLock(object):
                 # a blocking lock, but it only tries 10 times, once per second before rasing an
                 # OSError.
                 try:
-                    msvcrt.locking(lock_fd, msvcrt.LK_LOCK, 1)
+                    msvcrt.locking(lock_fd, msvcrt.LK_LOCK, 1)  # type: ignore[attr-defined]
                     break
                 except OSError as ex:
                     # Deadlock error is raised after failing to lock the file
@@ -178,7 +178,7 @@ class _FileLock(object):
                     safe_sleep(1)
 
             def unlock():
-                msvcrt.locking(lock_fd, msvcrt.LK_UNLCK, 1)
+                msvcrt.locking(lock_fd, msvcrt.LK_UNLCK, 1)  # type: ignore[attr-defined]
 
         else:
             lock_api = cast(

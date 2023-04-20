@@ -179,6 +179,7 @@ class _FileLock(object):
 
             def unlock():
                 msvcrt.locking(lock_fd, msvcrt.LK_UNLCK, 1)
+
         else:
             lock_api = cast(
                 "Callable[[int, int], None]",

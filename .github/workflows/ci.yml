@@ -88,7 +88,7 @@ jobs:
         with:
           python-version: "${{ join(matrix.python-version, '.') }}"
       - name: Expose Pythons
-        uses: pantsbuild/actions/expose-pythons@e63d2d0e3c339bdffbe5e51e7c39550e3bc527bb
+        uses: cognifloyd/actions-pants/expose-pythons@win_ci
         with:
           skip: "${{ steps.calculate-pythons-to-expose.outputs.skip }}"
       - name: Cache Pyenv Interpreters
@@ -196,7 +196,7 @@ jobs:
         with:
           python-version: "${{ join(matrix.python-version, '.') }}"
       - name: Expose Pythons
-        uses: pantsbuild/actions/expose-pythons@e63d2d0e3c339bdffbe5e51e7c39550e3bc527bb
+        uses: cognifloyd/actions-pants/expose-pythons@win_ci
         with:
           skip: "${{ steps.calculate-pythons-to-expose.outputs.skip }}"
       - name: Cache Pyenv Interpreters

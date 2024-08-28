@@ -367,12 +367,15 @@ class InstalledWheel(object):
                     # another symlink, which leaves open the possibility the src target could later
                     # go missing leaving the dst dangling.
                     if link and not os.path.islink(src):
-                        try:
-                            os.link(src, dst)
-                            continue
-                        except OSError as e:
-                            if e.errno != errno.EXDEV:
-                                raise e
+                        if hasattr(os, "link"):
+                            try:
+                                os.link(src, dst)
+                                continue
+                            except OSError as e:
+                                if e.errno != errno.EXDEV:
+                                    raise e
+                                link = False
+                        else:
                             link = False
                     shutil.copy(src, dst)
                 except (IOError, OSError) as e:

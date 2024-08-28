@@ -106,7 +106,7 @@ def safe_copy(source, dest, overwrite=False):
         os.rename(temp_dest, dest)
 
     # If the platform supports hard-linking, use that and fall back to copying.
-    # Windows does not support hard-linking.
+    # Windows and Android do not support hard-linking.
     if hasattr(os, "link"):
         try:
             os.link(source, dest)
@@ -821,12 +821,15 @@ def iter_copytree(
                     # another symlink, which leaves open the possibility the src_entry target could
                     # later go missing leaving the dst_entry dangling.
                     if link and not os.path.islink(src_entry):
-                        try:
-                            os.link(src_entry, dst_entry)
-                            continue
-                        except OSError as e:
-                            if e.errno != errno.EXDEV:
-                                raise e
+                        if hasattr(os, "link"):
+                            try:
+                                os.link(src_entry, dst_entry)
+                                continue
+                            except OSError as e:
+                                if e.errno != errno.EXDEV:
+                                    raise e
+                                link = False
+                        else:
                             link = False
                     shutil.copy(src_entry, dst_entry)
             except OSError as e:

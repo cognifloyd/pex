@@ -434,6 +434,7 @@ def compatible_version(
     requested_version,  # type: PipVersionValue
     context,  # type: str
     warn=True,  # type: bool
+    fallback_to_latest_compatible=False,  # type: bool
 ):
     # type: (...) -> Union[PipVersionValue, Error]
     try:
@@ -442,6 +443,8 @@ def compatible_version(
     except RequiresPythonError as e:
         remaining_versions = OrderedSet([requested_version] + list(PipVersion.values()))
         remaining_versions.discard(requested_version)
+        if fallback_to_latest_compatible:
+            remaining_versions = reversed(remaining_versions)
         for version in remaining_versions:
             try:
                 validate_targets(targets, version, context)

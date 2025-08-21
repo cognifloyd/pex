@@ -39,12 +39,20 @@ def _finalize_pip_configuration(
     targets,  # type: Targets
     context,  # type: str
     pip_version=None,  # type: Optional[PipVersionValue]
+    fallback_to_latest_compatible=False,  # type: bool
 ):
     # type: (...) -> Union[PipConfiguration, Error]
     version = pip_version or pip_configuration.version
     if version and pip_configuration.allow_version_fallback:
         return attr.evolve(
-            pip_configuration, version=try_(compatible_version(targets, version, context))
+            pip_configuration, version=try_(
+                compatible_version(
+                    targets,
+                    version,
+                    context,
+                    fallback_to_latest_compatible=fallback_to_latest_compatible,
+                )
+            )
         )
 
     result = catch(validate_targets, targets, version, context)
@@ -58,6 +66,7 @@ def finalize(
     targets,  # type: Targets
     context,  # type: str
     pip_version=None,  # type: Optional[PipVersionValue]
+    fallback_to_latest_compatible=False,  # type: bool
 ):
     # type: (...) -> Union[_C, Error]
 
@@ -65,7 +74,11 @@ def finalize(
         return cast(
             "_C",
             _finalize_pip_configuration(
-                resolver_configuration, targets, context, pip_version=pip_version
+                resolver_configuration,
+                targets,
+                context,
+                pip_version=pip_version,
+                fallback_to_latest_compatible=fallback_to_latest_compatible,
             ),
         )
 
@@ -76,6 +89,7 @@ def finalize(
                 targets,
                 context,
                 pip_version=pip_version,
+                fallback_to_latest_compatible=fallback_to_latest_compatible,
             )
         )
         return cast("_C", attr.evolve(resolver_configuration, pip_configuration=pip_configuration))
@@ -88,6 +102,7 @@ def finalize(
                 targets,
                 context,
                 pip_version=pip_version or lock_file.pip_version,
+                fallback_to_latest_compatible=fallback_to_latest_compatible,
             )
         )
         return cast(

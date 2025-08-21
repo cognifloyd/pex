@@ -1083,6 +1083,7 @@ class Lock(OutputMixin, JsonMixin, BuildTimeCommand):
                 resolver_configuration=pip_configuration,
                 targets=targets,
                 context="lock creation",
+                fallback_to_latest_compatible=self.options.pip_version == "latest-compatible",
             )
         )
         requirement_configuration = self._merge_project_requirements(
@@ -1477,6 +1478,7 @@ class Lock(OutputMixin, JsonMixin, BuildTimeCommand):
                 resolver_configuration=pip_configuration,
                 targets=targets,
                 context="lock creation",
+                fallback_to_latest_compatible=self.options.pip_version == "latest-compatible",
             )
         )
         requirement_configuration = self._merge_project_requirements(
@@ -1670,6 +1672,7 @@ class Lock(OutputMixin, JsonMixin, BuildTimeCommand):
                     targets=targets,
                     context="lock updating",
                     pip_version=lock_file.pip_version,
+                    fallback_to_latest_compatible=self.options.pip_version == "latest-compatible",
                 )
             ),
         )
@@ -2118,6 +2121,7 @@ class Lock(OutputMixin, JsonMixin, BuildTimeCommand):
                     resolver_configuration=pip_configuration,
                     targets=lock_update_request.targets,
                     context="lock syncing",
+                    fallback_to_latest_compatible=self.options.pip_version == "latest-compatible",
                 )
             )
             requirement_configuration = self._merge_project_requirements(
@@ -2146,6 +2150,7 @@ class Lock(OutputMixin, JsonMixin, BuildTimeCommand):
                     resolver_configuration=pip_configuration,
                     targets=targets,
                     context="lock creation",
+                    fallback_to_latest_compatible=self.options.pip_version == "latest-compatible",
                 )
             )
             requirement_configuration = self._merge_project_requirements(

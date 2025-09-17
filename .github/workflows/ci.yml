@@ -326,6 +326,21 @@ jobs:
           --junit-report-suppress-stdio \
           --junit-report-redact "${{ secrets.GITHUB_TOKEN }}" \
           --junit-report-redact "${{ secrets.SSH_PRIVATE_KEY }}"
+      - name: Create Job Summary with Test Results
+        if: always() && matrix.artifact-name
+        uses: dorny/test-reporter@v2.1.1
+        id: report
+        with:
+          name: Windows Test Results # unused w/ actions-summary, but required
+          path: dist/test-results/${{ matrix.artifact-name }}.xml
+          reporter: java-junit
+          # actions-summary per-job length limit is more than check-run's limit
+          use-actions-summary: true # instead of check-run
+          max-annotations: 0 # 1+ requires cwd in the git clone
+          list-suites: all
+          list-tests: failed
+          fail-on-error: false
+          fail-on-empty: false
       - uses: actions/upload-artifact@v4
         if: always() && matrix.artifact-name
         with:
@@ -345,6 +360,16 @@ jobs:
         with:
           path: ${{ env._PEX_CACHE_WINDOWS_STUBS_DIR }}
           key: ${{ steps.restore-windows-stubs.outputs.cache-primary-key }}
+      - name: Report links
+        if: always() && matrix.artifact-name
+        run: |
+          echo conclusion=${{ steps.report.outputs.conclusion }}
+          echo passed=${{ steps.report.outputs.passed }}
+          echo failed=${{ steps.report.outputs.failed }}
+          echo skipped=${{ steps.report.outputs.skipped }}
+          echo time=${{ steps.report.outputs.time }}
+          echo url=${{ steps.report.outputs.url }}
+          echo url_html=${{ steps.report.outputs.url_html }}
   windows-reports:
     name: Consolidate Windows Test Results
     needs: windows-tests

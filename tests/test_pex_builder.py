@@ -224,7 +224,7 @@ def test_pex_builder_script_from_pex_path(tmpdir):
     pb.set_script("my_app")
     pb.build(pex_file)
 
-    assert "hello world!\n" == subprocess.check_output(args=[pex_file]).decode("utf-8")
+    assert "hello world!" + os.linesep == subprocess.check_output(args=[pex_file]).decode("utf-8")
 
 
 def test_pex_builder_setuptools_script(tmpdir):
@@ -239,7 +239,7 @@ def test_pex_builder_setuptools_script(tmpdir):
         pb.set_script("shell_script")
         pb.build(pex_file)
 
-    assert "hello world from shell script\n" == subprocess.check_output(args=[pex_file]).decode(
+    assert "hello world from shell script" + os.linesep == subprocess.check_output(args=[pex_file]).decode(
         "utf-8"
     )
 
@@ -259,7 +259,7 @@ def test_pex_builder_packed(tmpdir):
         pb.set_script("shell_script")
         pb.build(pex_app, layout=Layout.PACKED)
 
-    assert "hello world from shell script\n" == subprocess.check_output(
+    assert "hello world from shell script" + os.linesep == subprocess.check_output(
         args=[os.path.join(pex_app, "__main__.py")]
     ).decode("utf-8")
 
@@ -592,4 +592,4 @@ def test_check(tmpdir):
             assert check.perform_check(layout, zipapp_ok) is (
                 True if layout is Layout.ZIPAPP and check is not Check.NONE else None
             )
-    assert b"BOOTED\n" == subprocess.check_output(args=[sys.executable, zipapp_ok])
+    assert "BOOTED" + os.linesep == subprocess.check_output(args=[sys.executable, zipapp_ok])

@@ -24,12 +24,22 @@ jobs:
     needs: org-check
     steps:
     - uses: dorny/test-reporter@v2.1.1
+      id: report
       with:
         artifact: test-results
         name: Windows Test Results
-        path: dist/test-results/unit*.xml,dist/test-results/integration*.xml
+        path: dist/test-results/*.xml
         reporter: java-junit
         list-suites: all
         list-tests: failed
         fail-on-error: false
         fail-on-empty: false
+    - name: Report links
+      run: |
+        echo conclusion=${{ steps.report.outputs.conclusion }}
+        echo passed=${{ steps.report.outputs.passed }}
+        echo failed=${{ steps.report.outputs.failed }}
+        echo skipped=${{ steps.report.outputs.skipped }}
+        echo time=${{ steps.report.outputs.time }}
+        echo url=${{ steps.report.outputs.url }}
+        echo url_html=${{ steps.report.outputs.url_html }}

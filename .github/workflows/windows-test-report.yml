@@ -23,11 +23,13 @@ jobs:
     runs-on: ubuntu-24.04
     needs: org-check
     steps:
-    - uses: dorny/test-reporter@v1
+    - uses: dorny/test-reporter@v2.1.1
       with:
         artifact: test-results
         name: Windows Test Results
-        path: dist/test-results/*.xml
+        path: dist/test-results/unit*.xml,dist/test-results/integration*.xml
         reporter: java-junit
+        list-suites: all
+        list-tests: failed
         fail-on-error: false
         fail-on-empty: false
